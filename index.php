@@ -1,0 +1,95 @@
+<html lang="en">
+<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="icon" type="image/png" sizes="16x16" href="plugins/images/favicon.png">
+<title>QMS : FUP</title>
+<!-- Bootstrap Core CSS -->
+<link href="bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- animation CSS -->
+<link href="css/animate.css" rel="stylesheet">
+<!-- Custom CSS -->
+<link href="css/style.css" rel="stylesheet">
+<!-- color CSS -->
+<link href="css/colors/blue.css" id="theme"  rel="stylesheet">
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+</head>
+<body>
+<!-- Preloader -->
+<div class="preloader">
+  <div class="cssload-speeding-wheel"></div>
+</div>
+<section id="wrapper" class="login-register">
+  <div class="pqr-box login-isocalidad">
+    <div class="white-box-formulario">
+      <form class="form-horizontal form-material" id="loginform" action="scripts/admin.php" method="post">
+        <!--<a href="javascript:void(0)" class="text-center db"><img src="plugins/images/eliteadmin-logo-darkfup.png" alt="Home" /><br/></a> --> 
+        <center><span class="titulo">Documentación<br>del SGC</span></center>
+        <div class="form-group m-t-40">
+          <div class="col-xs-12">
+            <input class="form-control" type="text" required="" name="username" id="username" placeholder="Nombre de usuario <<<">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-xs-12">
+            <input class="form-control" type="password" required="" name="password" id="password" placeholder="Contraseña >>>">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-md-12">
+            <a href="javascript:void(0)" id="to-recover" class="text-dark pull-right"><i class="fa fa-lock m-r-5"></i> Olvidó su contraseña?</a> </div>
+        </div>
+        <div class="form-group text-center m-t-20">
+          <div class="col-xs-12">
+            <button class="btn btn-info btn-lg btn-block text-uppercase waves-effect waves-light" type="submit">Iniciar sesion</button>
+            <input name="action" type="hidden" id="action" value="1"/>
+          </div>
+        </div>
+        
+      </form>
+      <form class="form-horizontal" id="recoverform" action="index.html">
+        <div class="form-group ">
+          <div class="col-xs-12">
+            <h3>Recuperar contraseña</h3>
+            <p class="text-muted">Ingrese su correo electrónico y se le enviaran las instrucciones correspondientes! </p>
+          </div>
+        </div>
+        <div class="form-group ">
+          <div class="col-xs-12">
+            <input class="form-control" type="text" required="" placeholder="Email">
+          </div>
+        </div>
+        <div class="form-group text-center m-t-20">
+          <div class="col-xs-12">
+            <button class="btn btn-primary btn-lg btn-block text-uppercase waves-effect waves-light" type="submit">Enviar</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+<!-- jQuery -->
+<script src="plugins/bower_components/jquery/dist/jquery.min.js"></script>
+<!-- Bootstrap Core JavaScript -->
+<script src="bootstrap/dist/js/bootstrap.min.js"></script>
+<!-- Menu Plugin JavaScript -->
+<script src="plugins/bower_components/sidebar-nav/dist/sidebar-nav.min.js"></script>
+
+<!--slimscroll JavaScript -->
+<script src="js/jquery.slimscroll.js"></script>
+<!--Wave Effects -->
+<script src="js/waves.js"></script>
+<!-- Custom Theme JavaScript -->
+<script src="js/custom.min.js"></script>
+<!--Style Switcher -->
+<script src="plugins/bower_components/styleswitcher/jQuery.style.switcher.js"></script>
+</body>
+</html>

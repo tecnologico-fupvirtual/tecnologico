@@ -1,0 +1,11 @@
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php  
+RewriteRule ^(.*)\.html$ consultar.php?referencia=$1
+RewriteCond %{SERVER_PORT} 80
+RewriteRule ^(.*)$ http://localhost:8888/isocalidad [R,L]
+
+Options -Indexes
+
+
