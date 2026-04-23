@@ -296,6 +296,58 @@
             echo json_encode($informacion);
           break;
 
+          case 12: //actualizar foto de perfil
+            $usuarioId = $_SESSION['id'];
+            $uploadDir = 'plugins/images/users/profiles';
+
+            if (!isset($_FILES['foto_perfil']) || $_FILES['foto_perfil']['error'] !== UPLOAD_ERR_OK) {
+              $informacion['respuesta'] = "ERROR4";
+              echo json_encode($informacion);
+              break;
+            }
+
+            if (!file_exists($uploadDir)) {
+              mkdir($uploadDir, 0755, true);
+            }
+
+            if ($_FILES['foto_perfil']['size'] > 2097152) {
+              $informacion['respuesta'] = "ERROR5";
+              echo json_encode($informacion);
+              break;
+            }
+
+            $imageInfo = @getimagesize($_FILES['foto_perfil']['tmp_name']);
+            $allowedTypes = array(
+              IMAGETYPE_JPEG => 'jpg',
+              IMAGETYPE_PNG => 'png',
+              IMAGETYPE_GIF => 'gif',
+              IMAGETYPE_WEBP => 'webp'
+            );
+
+            if ($imageInfo === false || !isset($allowedTypes[$imageInfo[2]])) {
+              $informacion['respuesta'] = "ERROR3";
+              echo json_encode($informacion);
+              break;
+            }
+
+            foreach (glob($uploadDir . '/' . $usuarioId . '.*') as $oldAvatar) {
+              if (is_file($oldAvatar)) {
+                unlink($oldAvatar);
+              }
+            }
+
+            $avatarPath = $uploadDir . '/' . $usuarioId . '.' . $allowedTypes[$imageInfo[2]];
+
+            if (move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $avatarPath)) {
+              $informacion['respuesta'] = "BIEN";
+              $informacion['avatar'] = $avatarPath;
+            } else {
+              $informacion['respuesta'] = "ERROR";
+            }
+
+            echo json_encode($informacion);
+          break;
+
   }
 
 

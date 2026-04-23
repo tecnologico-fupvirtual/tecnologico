@@ -101,8 +101,7 @@
       <div class="top-left-part"><a class="logo" href="index.html"><b><img src="plugins/images/eliteadmin-logo.png" alt="home" /></b><span class="hidden-xs"><img src="plugins/images/eliteadmin-text.png" alt="home" /></span></a></div>
 
       <ul class="nav navbar-top-links navbar-left hidden-xs">
-
-        <li><a href="javascript:void(0)" class="open-close hidden-xs waves-effect waves-light"><i class="icon-arrow-left-circle ti-menu"></i></a></li>
+            <li><a href="javascript:void(0)" class="open-close hidden-xs waves-effect waves-light"><i class="icon-arrow-left-circle ti-menu"></i></a></li>
 
         <li>
 
@@ -514,7 +513,7 @@
 
         </li>
 
-        <li> <a href="#" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">LISTADOS MAESTROS<span class="fa arrow"></span></span></a>
+        <li> <a href="#" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">LISTADO DE MAESTROS<span class="fa arrow"></span></span></a>
 
           <ul class="nav nav-second-level">
 

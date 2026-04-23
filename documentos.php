@@ -118,12 +118,8 @@ else{
         <div class="top-left-part"><a class="logo" href="https://fup.edu.co" target="_blank">&emsp;<b><img src="plugins/images/eliteadmin-logo.png" alt="home" /></b></a></div>
 
         <ul class="nav navbar-top-links navbar-left hidden-xs">
-
-          <li><a href="javascript:void(0)" class="open-close hidden-xs waves-effect waves-light"><i class="icon-arrow-left-circle ti-menu"></i></a></li>
-
-
-
-        </ul>
+            <li><a href="javascript:void(0)" class="open-close hidden-xs waves-effect waves-light"><i class="icon-arrow-left-circle ti-menu"></i></a></li>
+          </ul>
 
         <ul class="nav navbar-top-links navbar-right pull-right">
 
@@ -147,18 +143,10 @@ else{
         <li class="dropdown"> <a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#"><img src="plugins/images/users/varun.jpg" alt="user-img" width="36" class="img-circle"><b class="hidden-xs"><?php echo $_SESSION['nombre']; ?></b> </a>
 
           <ul class="dropdown-menu dropdown-user animated flipInY">
-
-            <li><a href="#"><i class="ti-user"></i> Mi perfil</a></li>
-
-
-
-            <li><a href="#"><i class="ti-settings"></i> Configuración de cuenta</a></li>
-
-            <li role="separator" class="divider"></li>
-
-            <li><a href="scripts/admin.php?action=2"><i class="fa fa-power-off"></i> Cerrar sesion</a></li>
-
-          </ul>
+              <li><a href="configuracionCuenta"><i class="ti-settings"></i> Configuración de Perfil</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="scripts/admin.php?action=2"><i class="fa fa-power-off"></i> Cerrar sesion</a></li>
+            </ul>
 
         </li>
 
@@ -238,7 +226,7 @@ else{
           </li>
 
           <?php if($_SESSION['administrador']==1){ ?>
-            <li> <a href="#" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">LISTADOS MAESTROS<span class="fa arrow"></span></span></a>
+            <li> <a href="#" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">LISTADO DE MAESTROS<span class="fa arrow"></span></span></a>
               <ul class="nav nav-second-level">
                 <li> <a href="listadoMaestroRegistro">Listado maestro de registro</a> </li>
                 <li> <a href="listadoMaestroDocumentos">Listado maestro de documentos</a> </li>

@@ -1,12 +1,39 @@
 <?php
-  session_start();
-  if(!isset($_SESSION['id'])) {
-    header('Location: index.php');
-    exit();
-  }else{
-      $usuario = $_SESSION['username'];
+session_start();
+if (!isset($_SESSION['id'])) {
+  header('Location: index.php');
+  exit();
+}
+
+include 'scripts/utiles.php';
+include 'scripts/config.php';
+
+$conexion = mysqli_connect($server, $user, $password, $database);
+mysqli_set_charset($conexion, "utf8");
+
+if (!$conexion) {
+  die('Error de Conexión: ' . mysqli_connect_errno());
+}
+
+$usuarioId = $_SESSION['id'];
+$queryPerfil = "SELECT users.id, users.name, users.username, users.publish, users.is_view_all, users.employee_id, employees.name AS empleado, employees.office_email, designations.name AS cargo FROM users LEFT JOIN employees ON (users.employee_id = employees.id) LEFT JOIN designations ON (employees.designation_id = designations.id) WHERE users.id = '$usuarioId' LIMIT 1";
+$resultadoPerfil = mysqli_query($conexion, $queryPerfil);
+$perfil = mysqli_fetch_assoc($resultadoPerfil);
+mysqli_free_result($resultadoPerfil);
+mysqli_close($conexion);
+
+$avatarUrl = 'plugins/images/users/varun.jpg';
+foreach (glob('plugins/images/users/profiles/' . $usuarioId . '.*') as $avatarFile) {
+  if (is_file($avatarFile)) {
+    $avatarUrl = $avatarFile . '?v=' . filemtime($avatarFile);
+    break;
   }
-  include 'scripts/utiles.php';
+}
+
+$nombrePerfil = isset($perfil['empleado']) && trim($perfil['empleado']) !== '' ? $perfil['empleado'] : $_SESSION['nombre'];
+$correoPerfil = isset($perfil['office_email']) ? $perfil['office_email'] : 'No registrado';
+$cargoPerfil = isset($perfil['cargo']) && trim($perfil['cargo']) !== '' ? $perfil['cargo'] : 'Sin cargo asignado';
+$rolPerfil = !empty($_SESSION['super']) ? 'Administrador' : 'Usuario';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -18,217 +45,270 @@
   <meta name="author" content="">
   <link rel="icon" type="image/png" sizes="16x16" href="plugins/images/favicon.png">
   <title>isoCalidad</title>
-  <!-- Bootstrap Core CSS -->
   <link href="bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="plugins/bower_components/datatables/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
   <link href="https://cdn.datatables.net/buttons/1.2.2/css/buttons.dataTables.min.css" rel="stylesheet" type="text/css" />
   <link href="plugins/bower_components/bootstrap-switch/bootstrap-switch.min.css" rel="stylesheet">
-
-  <!-- Menu CSS -->
   <link href="plugins/bower_components/sidebar-nav/dist/sidebar-nav.min.css" rel="stylesheet">
-  <!-- animation CSS -->
-  <link href="css/animate.css" rel="stylesheet">
-  <!-- Custom CSS -->
-  <link href="css/style.css" rel="stylesheet">
-  <!-- color CSS -->
-  <link href="css/colors/blue.css" id="theme"  rel="stylesheet">
-  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-<!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
-
-  <!-- toast CSS -->
   <link href="plugins/bower_components/toast-master/css/jquery.toast.css" rel="stylesheet">
+  <link href="css/animate.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/colors/blue.css" id="theme" rel="stylesheet">
+  <style>
+    .profile-shell {
+      background: linear-gradient(135deg, #f5f9ff 0%, #edf6ff 100%);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(44, 62, 80, 0.08);
+    }
 
-    <script src="https://www.w3schools.com/lib/w3data.js"></script>
-  </head>
-  <body>
-    <!-- Preloader -->
-    <div class="preloader">
-      <div class="cssload-speeding-wheel"></div>
-    </div>
-    <div id="wrapper">
-      <!-- Top Navigation -->
-      <nav class="navbar navbar-default navbar-static-top m-b-0">
-        <div class="navbar-header"> <a class="navbar-toggle hidden-sm hidden-md hidden-lg " href="javascript:void(0)" data-toggle="collapse" data-target=".navbar-collapse"><i class="ti-menu"></i></a>
-          <div class="top-left-part"><a class="logo" href="https://fup.edu.co" target="_blank">&emsp;<b><img src="plugins/images/eliteadmin-logo.png" alt="home" /></b></a></div>
-          <ul class="nav navbar-top-links navbar-left hidden-xs">
-            <li><a href="javascript:void(0)" class="open-close hidden-xs waves-effect waves-light"><i class="icon-arrow-left-circle ti-menu"></i></a></li>
-            
-          </ul>
-          <ul class="nav navbar-top-links navbar-right pull-right">
-            
-          <li class="dropdown"> <a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#"><img src="plugins/images/users/varun.jpg" alt="user-img" width="36" class="img-circle"><b class="hidden-xs"><?php echo $_SESSION['nombre']; ?></b> </a>
-  					<ul class="dropdown-menu dropdown-user animated flipInY">
-  						<li><a href="#"><i class="ti-user"></i> Mi perfil</a></li>
-  						<li><a href="#"><i class="ti-settings"></i> Configuración de cuenta</a></li>
-  						<li role="separator" class="divider"></li>
-  						<li><a href="scripts/admin.php?action=2"><i class="fa fa-power-off"></i> Cerrar sesion</a></li>
-  					</ul>
-  				</li>
-          <!-- /.dropdown -->
-        <li class="right-side-toggle"> <a class="waves-effect waves-light" href="javascript:void(0)"><i class="ti-settings"></i></a></li>
+    .profile-card {
+      background: linear-gradient(160deg, #0a5ea8 0%, #1486cc 100%);
+      color: #fff;
+      border-radius: 20px;
+      padding: 28px;
+      text-align: center;
+      box-shadow: 0 16px 34px rgba(20, 134, 204, 0.25);
+    }
 
-      </ul>
-    </div>
-    <!-- /.navbar-header -->
-    <!-- /.navbar-top-links -->
-    <!-- /.navbar-static-side -->
-  </nav>
-  <!-- End Top Navigation -->
-  <!-- Left navbar-header -->
-  <div class="navbar-default sidebar" role="navigation">
-    <div class="sidebar-nav navbar-collapse slimscrollsidebar">
-     <ul class="nav" id="side-menu">
-      <li class="sidebar-search hidden-sm hidden-md hidden-lg">
-        <!-- input-group -->
-        <div class="input-group custom-search-form">
-          <input type="text" class="form-control" placeholder="Search...">
-          <span class="input-group-btn">
-            <button class="btn btn-default" type="button"> <i class="fa fa-search"></i> </button>
-          </span> </div>
-          <!-- /input-group -->
-        </li>
-        <li> <a href="escritorio.php" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu"> ESCRITORIO <span class="fa arrow"></span> </span></a>
+    .profile-avatar-lg {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 5px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      margin-bottom: 18px;
+    }
 
-        </li>
-        <?php if($_SESSION['administrador']==1){ ?>
-        </li>
+    .profile-chip {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      margin-top: 12px;
+      font-size: 12px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
 
-        <li> <a href="#" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">DATOS DE ENTRADA<span class="fa arrow"></span></span></a>
+    .profile-panel {
+      background: #fff;
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 24px rgba(19, 44, 74, 0.08);
+    }
 
-          <ul class="nav nav-second-level">
+    .profile-panel h4 {
+      margin-top: 0;
+      margin-bottom: 18px;
+      color: #0a5ea8;
+      font-weight: 600;
+    }
 
-            <li> <a href="procesos.php">Procesos</a> </li>
+    .profile-label {
+      color: #7e8a97;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: 4px;
+    }
 
-            <li> <a href="categorias.php">Categorias</a> </li>
+    .profile-value {
+      color: #22313f;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 18px;
+      word-break: break-word;
+    }
 
-            <li> <a href="cargos.php">Cargos</a> </li>
+    .btn-profile {
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-weight: 600;
+    }
 
-            <li> <a href="empleados.php">Empleados</a> </li>
+    .avatar-help {
+      color: rgba(255, 255, 255, 0.84);
+      font-size: 12px;
+      margin-top: 10px;
+    }
 
-            <li> <a href="usuarios.php">Usuarios</a> </li>
-
-          </ul>
-
-        </li>
-        <?php } ?>
-        
-        <li> <a href="mapadeprocesos.php" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">MAPA DE PROCESOS<span class="fa arrow"></span></span></a>
-        </li>
-        
-        
-        <?php if($_SESSION['administrador']==1){ ?>
-        <li> <a href="#" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">LISTADOS MAESTROS<span class="fa arrow"></span></span></a>
-
-          <ul class="nav nav-second-level">
-
-            <li> <a href="listadoMaestroRegistro">Listado maestro de registro</a> </li>
-            <li> <a href="listadoMaestroDocumentos">Listado maestro de documentos</a> </li>
-            <li> <a href="documentosDescargados">Documentos descargados</a> </li>
-
-          </ul>
-
-        </li>
-
-        <li> <a href="#" class="waves-effect active"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">CONFIGURACION<span class="fa arrow"></span></span></a>
-
-          <ul class="nav nav-second-level">
-
-            <li> <a href="form-img-cropper.php">Mapa de procesos</a> </li>
-
-          </ul>
-
-        </li>
-        <?php } ?>
-        <li> <a href="buscarDocumentos" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">BUSCAR DOCUMENTOS<span class="fa arrow"></span></span></a>
-        </li>
-      </ul>
-    </div>
+    .profile-input {
+      height: 48px;
+      border-radius: 10px;
+      border: 1px solid #d8e2ec;
+      box-shadow: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="preloader">
+    <div class="cssload-speeding-wheel"></div>
   </div>
-  <!-- Left navbar-header end -->
-  <!-- Page Content -->
-  <div id="page-wrapper">
-    <div class="container-fluid">
-      <div class="row bg-title">
-        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
-          <h4 class="page-title">CONFIGURACION CUENTA</h4>
+  <div id="wrapper">
+    <nav class="navbar navbar-default navbar-static-top m-b-0">
+      <div class="navbar-header">
+        <a class="navbar-toggle hidden-sm hidden-md hidden-lg" href="javascript:void(0)" data-toggle="collapse" data-target=".navbar-collapse"><i class="ti-menu"></i></a>
+        <div class="top-left-part"><a class="logo" href="https://fup.edu.co" target="_blank">&emsp;<b><img src="plugins/images/eliteadmin-logo.png" alt="home" /></b></a></div>
+        <ul class="nav navbar-top-links navbar-left hidden-xs">
+            <li><a href="javascript:void(0)" class="open-close hidden-xs waves-effect waves-light"><i class="icon-arrow-left-circle ti-menu"></i></a></li>
+        </ul>
+        <ul class="nav navbar-top-links navbar-right pull-right">
+          <li class="dropdown">
+            <a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#">
+              <img src="<?php echo $avatarUrl; ?>" alt="user-img" width="36" class="img-circle">
+              <b class="hidden-xs"><?php echo $_SESSION['nombre']; ?></b>
+            </a>
+            <ul class="dropdown-menu dropdown-user animated flipInY">
+              <li><a href="configuracionCuenta"><i class="ti-settings"></i> Configuración de Perfil</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="scripts/admin.php?action=2"><i class="fa fa-power-off"></i> Cerrar sesion</a></li>
+            </ul>
+          </li>
+          <li class="right-side-toggle"><a class="waves-effect waves-light" href="javascript:void(0)"><i class="ti-settings"></i></a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="navbar-default sidebar" role="navigation">
+      <div class="sidebar-nav navbar-collapse slimscrollsidebar">
+        <ul class="nav" id="side-menu">
+          <li class="sidebar-search hidden-sm hidden-md hidden-lg">
+            <div class="input-group custom-search-form">
+              <input type="text" class="form-control" placeholder="Search...">
+              <span class="input-group-btn">
+                <button class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+              </span>
+            </div>
+          </li>
+          <li><a href="escritorio" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu"> ESCRITORIO <span class="fa arrow"></span></span></a></li>
+          <?php if ($_SESSION['administrador'] == 1) { ?>
+          <li><a href="#" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">DATOS DE ENTRADA<span class="fa arrow"></span></span></a>
+            <ul class="nav nav-second-level">
+              <li><a href="procesos">Procesos</a></li>
+              <li><a href="categorias">Categorias</a></li>
+              <li><a href="cargos">Cargos</a></li>
+              <li><a href="empleados">Empleados</a></li>
+              <li><a href="usuarios">Usuarios</a></li>
+            </ul>
+          </li>
+          <?php } ?>
+          <li><a href="mapadeprocesos" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">MAPA DE PROCESOS<span class="fa arrow"></span></span></a></li>
+          <?php if ($_SESSION['administrador'] == 1) { ?>
+          <li><a href="#" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">LISTADO DE MAESTROS<span class="fa arrow"></span></span></a>
+            <ul class="nav nav-second-level">
+              <li><a href="listadoMaestroRegistro">Listado maestro de registro</a></li>
+              <li><a href="listadoMaestroDocumentos">Listado maestro de documentos</a></li>
+              <li><a href="documentosDescargados">Informe documentos descargados</a></li>
+            </ul>
+          </li>
+          <li><a href="#" class="waves-effect active"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">CONFIGURACIÓN<span class="fa arrow"></span></span></a>
+            <ul class="nav nav-second-level">
+              <li><a href="form-img-cropper.php">Mapa de procesos</a></li>
+              <li><a href="configuracionCuenta">Configuración de perfil</a></li>
+            </ul>
+          </li>
+          <?php } ?>
+
+          <li><a href="buscarDocumentos" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">BUSCAR DOCUMENTOS<span class="fa arrow"></span></span></a></li>
+          <li><a href="#" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">SOLICITUDES SGC <span class="fa arrow"></span></span></a>
+            <ul class="nav nav-second-level">
+              <li><a href="https://forms.office.com/r/Dy28fet3Xv" target="_blank">Solicitud de cambio al SGC - FUP</a></li>
+              <li><a href="https://forms.office.com/r/QRb71zfT90" target="_blank">Reporte No-Conformidad</a></li>
+              <li><a href="https://forms.office.com/r/Bev2TbAwkj" target="_blank">Reporte salida No-Conforme</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="page-wrapper">
+      <div class="container-fluid">
+        <div class="row bg-title">
+          <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <h4 class="page-title">CONFIGURACIÓN DE PERFIL</h4>
+          </div>
         </div>
 
-      </div>
-
-       <div class="row">
-
-          <!-- /.modal -->
-
-          <div id="responsive-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-
-            <div class="modal-dialog">
-
-              <div class="modal-content">
-
-                <div class="modal-header">
-
-
-                  <h4 class="modal-title">Actualizar Contraseña</h4>
-
-                </div>
-
-                <form id="frmDatos" method="POST" enctype="multipart/form-data">
-
-                  <div class="modal-body">  
-
-                    <div class="form-group">
-                      <label for="message-text" class="control-label">Ingrese su antigua contraseña:</label>
-                      <input  type="password" class="form-control" style="height: 50px" id="antigua-contrasenia" name="antigua-contrasenia" required>
-                    </div>
-                    <div class="form-group">
-                      <label for="message-text" class="control-label">Ingrese su nueva contraseña:</label>
-                      <input  type="password" class="form-control" style="height: 50px" id="nueva-contrasenia1" name="nueva-contrasenia1" required>
-                    </div>
-                    <div class="form-group">
-                      <label for="message-text" class="control-label">Verifique su nueva contraseña:</label>
-                      <input  type="password" class="form-control" style="height: 50px" id="nueva-contrasenia2" name="nueva-contrasenia2" required>
-                    </div>
-                   
-                    
-                    <div class="form-group">
-
-                      <input type="hidden" id="accion" name="accion" value="11">
-                     
-                    </div>
-
+        <div class="profile-shell">
+          <div class="row">
+            <div class="col-lg-4 col-md-5 col-sm-12">
+              <div class="profile-card">
+                <img src="<?php echo $avatarUrl; ?>" id="avatar-principal" alt="Avatar" class="profile-avatar-lg">
+                <h3><?php echo htmlspecialchars($nombrePerfil); ?></h3>
+                <p><?php echo htmlspecialchars($cargoPerfil); ?></p>
+                <span class="profile-chip"><?php echo $rolPerfil; ?></span>
+                <p class="avatar-help">Suba una imagen JPG, PNG, GIF o WEBP de hasta 2 MB para personalizar su perfil.</p>
+                <form id="frmAvatar" method="POST" enctype="multipart/form-data">
+                  <input type="hidden" name="accion" value="12">
+                  <div class="form-group m-t-20">
+                    <input type="file" class="form-control" name="foto_perfil" id="foto_perfil" accept=".jpg,.jpeg,.png,.gif,.webp" required>
                   </div>
-
-                  <div class="modal-footer">
-
-                    <button type="button" id "cancelar" class="btn btn-default waves-effect" onclick="limpiar_cajas();">Cancelar</button>
-
-                    <button type="submit" id="configuracion-usuario" class="btn btn-info waves-effect waves-light" >Actualizar</button>
-
-                  </div>
-
+                  <button type="submit" class="btn btn-warning btn-profile btn-block">Actualizar foto de perfil</button>
                 </form>
-
               </div>
-
             </div>
 
-          </div>        
+            <div class="col-lg-8 col-md-7 col-sm-12">
+              <div class="profile-panel">
+                <h4>Información de la cuenta</h4>
+                <div class="row">
+                  <div class="col-sm-6">
+                    <div class="profile-label">Nombre</div>
+                    <div class="profile-value"><?php echo htmlspecialchars($nombrePerfil); ?></div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="profile-label">Usuario</div>
+                    <div class="profile-value"><?php echo htmlspecialchars($perfil['username']); ?></div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="profile-label">Correo institucional</div>
+                    <div class="profile-value"><?php echo htmlspecialchars($correoPerfil); ?></div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="profile-label">Cargo</div>
+                    <div class="profile-value"><?php echo htmlspecialchars($cargoPerfil); ?></div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="profile-label">Rol en la plataforma</div>
+                    <div class="profile-value"><?php echo $rolPerfil; ?></div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="profile-label">Estado</div>
+                    <div class="profile-value"><?php echo !empty($perfil['publish']) ? 'Activo' : 'Inactivo'; ?></div>
+                  </div>
+                </div>
+              </div>
 
+              <div class="profile-panel">
+                <h4>Seguridad</h4>
+                <form id="frmPassword" method="POST">
+                  <input type="hidden" id="accion" name="accion" value="11">
+                  <div class="form-group">
+                    <label class="control-label">Ingrese su antigua contraseña</label>
+                    <input type="password" class="form-control profile-input" id="antigua-contrasenia" name="antigua-contrasenia" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label">Ingrese su nueva contraseña</label>
+                    <input type="password" class="form-control profile-input" id="nueva-contrasenia1" name="nueva-contrasenia1" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label">Verifique su nueva contraseña</label>
+                    <input type="password" class="form-control profile-input" id="nueva-contrasenia2" name="nueva-contrasenia2" required>
+                  </div>
+                  <div class="text-right">
+                    <button type="button" class="btn btn-default btn-profile" onclick="limpiarCajasPassword();">Limpiar</button>
+                    <button type="submit" class="btn btn-info btn-profile">Actualizar contraseña</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
 
-         
-
-
-
-
-
-      
-    
-      <!-- .right-sidebar -->
       <div class="right-sidebar">
         <div class="slimscrollright">
           <div class="rpanel-title"> Estilos <span><i class="ti-close right-side-toggle"></i></span> </div>
@@ -246,166 +326,156 @@
               <li><a href="javascript:void(0)" theme="default-dark" class="default-dark-theme">7</a></li>
               <li><a href="javascript:void(0)" theme="green-dark" class="green-dark-theme">8</a></li>
               <li><a href="javascript:void(0)" theme="gray-dark" class="yellow-dark-theme">9</a></li>
-
               <li><a href="javascript:void(0)" theme="blue-dark" class="blue-dark-theme">10</a></li>
               <li><a href="javascript:void(0)" theme="purple-dark" class="purple-dark-theme">11</a></li>
               <li><a href="javascript:void(0)" theme="megna-dark" class="megna-dark-theme">12</a></li>
             </ul>
-
           </div>
         </div>
       </div>
-      <!-- /.right-sidebar -->
+
+      <footer class="footer text-center">2018 &copy; UNIVIDA</footer>
     </div>
-    <!-- /.container-fluid -->
-    <footer class="footer text-center"> 2018 &copy; UNIVIDA </footer>
   </div>
-  <!-- /#page-wrapper -->
-</div>
 
-<!-- /#wrapper -->
-<!-- jQuery -->
-<script src="plugins/bower_components/jquery/dist/jquery.min.js"></script>
-<!-- Bootstrap Core JavaScript -->
-<script src="bootstrap/dist/js/bootstrap.min.js"></script>
-<!-- Menu Plugin JavaScript -->
-<script src="plugins/bower_components/sidebar-nav/dist/sidebar-nav.min.js"></script>
-<!--slimscroll JavaScript -->
-<script src="js/jquery.slimscroll.js"></script>
-<!--Wave Effects -->
-<script src="js/waves.js"></script>
+  <script src="plugins/bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="plugins/bower_components/sidebar-nav/dist/sidebar-nav.min.js"></script>
+  <script src="js/jquery.slimscroll.js"></script>
+  <script src="js/waves.js"></script>
+  <script src="js/custom.min.js"></script>
+  <script src="plugins/bower_components/datatables/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.flash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+  <script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js"></script>
+  <script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js"></script>
+  <script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.print.min.js"></script>
+  <script src="plugins/bower_components/toast-master/js/jquery.toast.js"></script>
+  <script src="js/toastr.js"></script>
+  <script src="plugins/bower_components/bootstrap-switch/bootstrap-switch.min.js"></script>
+  <script src="plugins/bower_components/styleswitcher/jQuery.style.switcher.js"></script>
 
-
-<!-- Custom Theme JavaScript -->
-<script src="js/custom.min.js"></script>
-<script src="plugins/bower_components/datatables/jquery.dataTables.min.js"></script>
-<!-- start - This is for export functionality only -->
-<script src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.flash.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
-<script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js"></script>
-<script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.print.min.js"></script>
-<!-- end - This is for export functionality only -->
-<!--Wave Effects -->
-<script src="js/waves.js"></script>
-<script src="plugins/bower_components/toast-master/js/jquery.toast.js"></script>
-<script src="js/toastr.js"></script>
-
-<script>
-
-    $(document).on("ready", function(){
-      guardar();
-      
+  <script>
+    $(document).on("ready", function() {
+      guardarPassword();
+      guardarAvatar();
     });
 
-
-    var guardar = function(){
-      $("form").on("submit",function(e){
+    var guardarPassword = function() {
+      $("#frmPassword").on("submit", function(e) {
         e.preventDefault();
-        var frm = $(this).serialize();
-
-        //console.log("si sr");
-        //console.log(frm);
         $.ajax({
-          method:"POST",
-          url:"registro_usuarios.php",
-          data:frm
-        }).done(function(info){
+          method: "POST",
+          url: "registro_usuarios.php",
+          data: $(this).serialize()
+        }).done(function(info) {
           var json_info = JSON.parse(info);
-          mostrar_mensaje(json_info);
-          limpiar_cajas();
+          mostrarMensaje(json_info);
+          if (json_info.respuesta === 'BIEN') {
+            limpiarCajasPassword();
+          }
         });
       });
-    }
+    };
 
-   
+    var guardarAvatar = function() {
+      $("#frmAvatar").on("submit", function(e) {
+        e.preventDefault();
+        var formData = new FormData(this);
 
-    var mostrar_mensaje = function(informacion){
-      //console.log(informacion.respuesta); 
-      if(informacion.respuesta == 'BIEN'){
+        $.ajax({
+          method: "POST",
+          url: "registro_usuarios.php",
+          data: formData,
+          contentType: false,
+          processData: false
+        }).done(function(info) {
+          var json_info = JSON.parse(info);
+          mostrarMensaje(json_info);
+          if (json_info.respuesta === 'BIEN') {
+            window.setTimeout(function() {
+              window.location.reload();
+            }, 800);
+          }
+        });
+      });
+    };
+
+    var mostrarMensaje = function(informacion) {
+      if (informacion.respuesta == 'BIEN') {
         $.toast({
-            heading: 'QMS Calidad',
-            text: 'Los cambios se realizaron satisfactoriamente.',
-            position: 'top-right',
-            loaderBg:'#ff6849',
-            icon: 'success',
-            hideAfter: 3500,
-            stack: 6
-          });
-      }else if(informacion.respuesta == 'ERROR'){
+          heading: 'QMS Calidad',
+          text: 'Los cambios se realizaron satisfactoriamente.',
+          position: 'top-right',
+          loaderBg:'#ff6849',
+          icon: 'success',
+          hideAfter: 3500,
+          stack: 6
+        });
+      } else if (informacion.respuesta == 'ERROR') {
         $.toast({
-            heading: 'QMS Calidad',
-            text: 'No se realizaron cambios.',
-            position: 'top-right',
-            loaderBg:'#ff6849',
-            icon: 'error',
-            hideAfter: 3500
-          });
-      }else if(informacion.respuesta == 'ERROR1'){
+          heading: 'QMS Calidad',
+          text: 'No se realizaron cambios.',
+          position: 'top-right',
+          loaderBg:'#ff6849',
+          icon: 'error',
+          hideAfter: 3500
+        });
+      } else if (informacion.respuesta == 'ERROR1') {
         $.toast({
-            heading: 'QMS Calidad',
-            text: 'No se realizaron cambios, la nueva contraseña y la verificación no coinciden.',
-            position: 'top-right',
-            loaderBg:'#ff6849',
-            icon: 'error',
-            hideAfter: 3500
-          });
-      }else if(informacion.respuesta == 'ERROR2'){
+          heading: 'QMS Calidad',
+          text: 'La nueva contraseña y su verificación no coinciden.',
+          position: 'top-right',
+          loaderBg:'#ff6849',
+          icon: 'error',
+          hideAfter: 3500
+        });
+      } else if (informacion.respuesta == 'ERROR2') {
         $.toast({
-            heading: 'QMS Calidad',
-            text: 'No se realizaron cambios, verifique la contraseña actual.',
-            position: 'top-right',
-            loaderBg:'#ff6849',
-            icon: 'error',
-            hideAfter: 3500
-          });
+          heading: 'QMS Calidad',
+          text: 'La contraseña actual no es correcta.',
+          position: 'top-right',
+          loaderBg:'#ff6849',
+          icon: 'error',
+          hideAfter: 3500
+        });
+      } else if (informacion.respuesta == 'ERROR3') {
+        $.toast({
+          heading: 'QMS Calidad',
+          text: 'El archivo debe ser una imagen JPG, PNG, GIF o WEBP.',
+          position: 'top-right',
+          loaderBg:'#ff6849',
+          icon: 'error',
+          hideAfter: 3500
+        });
+      } else if (informacion.respuesta == 'ERROR4') {
+        $.toast({
+          heading: 'QMS Calidad',
+          text: 'Seleccione una imagen antes de continuar.',
+          position: 'top-right',
+          loaderBg:'#ff6849',
+          icon: 'warning',
+          hideAfter: 3500
+        });
+      } else if (informacion.respuesta == 'ERROR5') {
+        $.toast({
+          heading: 'QMS Calidad',
+          text: 'La imagen supera el límite de 2 MB.',
+          position: 'top-right',
+          loaderBg:'#ff6849',
+          icon: 'error',
+          hideAfter: 3500
+        });
       }
-    }
+    };
 
-   
-
-    var limpiar_cajas = function(){
+    var limpiarCajasPassword = function() {
       $("#antigua-contrasenia").val("").focus();
       $("#nueva-contrasenia1").val("");
       $("#nueva-contrasenia2").val("");
-    }
-
-   
-    
-
-    
-
-   
+    };
   </script>
-  <!-- bt-switch -->
-  <script src="plugins/bower_components/bootstrap-switch/bootstrap-switch.min.js"></script>
-  <script type="text/javascript">
-     $(".bt-switch input[type='checkbox'], .bt-switch input[type='radio']").bootstrapSwitch();
-     var radioswitch = function() {
-        var bt = function() {
-           $(".radio-switch").on("switch-change", function() {
-              $(".radio-switch").bootstrapSwitch("toggleRadioState")
-           }),
-           $(".radio-switch").on("switch-change", function() {
-              $(".radio-switch").bootstrapSwitch("toggleRadioStateAllowUncheck")
-           }),
-           $(".radio-switch").on("switch-change", function() {
-              $(".radio-switch").bootstrapSwitch("toggleRadioStateAllowUncheck", !1)
-           })
-        };
-        return {
-           init: function() {
-              bt()
-           }
-        }
-     }();
-     $(document).ready(function() {
-        radioswitch.init()
-     });
-  </script>
-  <!--Style Switcher -->
-  <script src="plugins/bower_components/styleswitcher/jQuery.style.switcher.js"></script>
 </body>
 </html>
