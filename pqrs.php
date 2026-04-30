@@ -60,123 +60,8 @@ include 'scripts/utiles.php';
   <script src="https://www.w3schools.com/lib/w3data.js"></script>
 </head>
 <body>
-  <div class="preloader">
-
-    <div class="cssload-speeding-wheel"></div>
-
-  </div>
-
-  <div id="wrapper">
-
-    <!-- Navigation -->
-
-    <nav class="navbar navbar-default navbar-static-top m-b-0">
-
-      <div class="navbar-header"> <a class="navbar-toggle hidden-sm hidden-md hidden-lg " href="javascript:void(0)" data-toggle="collapse" data-target=".navbar-collapse"><i class="ti-menu"></i></a>
-
-        <div class="top-left-part"><a class="logo" href="https://fup.edu.co" target="_blank">&emsp;<b><img src="plugins/images/eliteadmin-logo.png" alt="home" /></b></a></div>
-
-        <ul class="nav navbar-top-links navbar-left hidden-xs">
-            <li><a href="javascript:void(0)" class="open-close hidden-xs waves-effect waves-light"><i class="icon-arrow-left-circle ti-menu"></i></a></li>
-          </ul>
-
-        <ul class="nav navbar-top-links navbar-right pull-right">
-
-
-
-          <!-- /.dropdown -->
-
-
-
-          <!-- /.dropdown -->
-
-          <li class="dropdown"> <a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#"> <img src="plugins/images/users/varun.jpg" alt="user-img" width="36" class="img-circle"><b class="hidden-xs"><?php echo $_SESSION['nombre']; ?></b> </a>
-
-           <ul class="dropdown-menu dropdown-user animated flipInY">
-              <li><a href="configuracionCuenta"><i class="ti-settings"></i> Configuración de Perfil</a></li>
-              <li role="separator" class="divider"></li>
-              <li><a href="scripts/admin.php?action=2"><i class="fa fa-power-off"></i> Cerrar sesion</a></li>
-            </ul>
-
-          <!-- /.dropdown-user -->
-
-        </li>
-
-
-
-        <li class="right-side-toggle"> <a class="waves-effect waves-light" href="javascript:void(0)"><i class="ti-settings"></i></a></li>
-
-        <!-- /.dropdown -->
-
-      </ul>
-
-    </div>
-
-    <!-- /.navbar-header -->
-
-    <!-- /.navbar-top-links -->
-
-    <!-- /.navbar-static-side -->
-
-  </nav>
-  <!-- End Top Navigation -->
-  <!-- Left navbar-header -->
-  <div class="navbar-default sidebar" role="navigation">
-    <div class="sidebar-nav navbar-collapse slimscrollsidebar">
-     <ul class="nav" id="side-menu">
-      <li class="sidebar-search hidden-sm hidden-md hidden-lg">
-        <!-- input-group -->
-        <div class="input-group custom-search-form">
-          <input type="text" class="form-control" placeholder="Search...">
-          <span class="input-group-btn">
-            <button class="btn btn-default" type="button"> <i class="fa fa-search"></i> </button>
-          </span> </div>
-          <!-- /input-group -->
-        </li>
-        <li> <a href="escritorio.php" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu"> ESCRITORIO <span class="fa arrow"></span> </span></a>
-
-        </li>
-        <li> <a href="#" class="waves-effect active"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">DATOS DE ENTRADA<span class="fa arrow"></span></span></a>
-          <ul class="nav nav-second-level">
-            <li> <a href="procesos.php">Procesos</a> </li>
-            <li> <a href="cargos.php">Cargos</a> </li>
-            <li> <a href="empleados.php">Empleados</a> </li>
-            <li> <a href="usuarios.php">Usuarios</a> </li>
-          </ul>
-        </li>
-        <li> <a href="mapadeprocesos.php" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">MAPA DE PROCESOS<span class="fa arrow"></span></span></a>          
-        </li>
-        <li> <a href="#" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">LISTADO DE MAESTROS<span class="fa arrow"></span></span></a>
-          <ul class="nav nav-second-level">
-            <li> <a href="listadomaestro.php?r=1">Listado maestro de registro</a> </li>
-            <li> <a href="listadomaestro.php?r=0">Listado maestro de documentos</a> </li>
-          </ul>
-        </li>
-
-        <li> <a href="#" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">CONFIGURACIÓN<span class="fa arrow"></span></span></a>
-
-        <ul class="nav nav-second-level">
-
-         <li> <a href="form-img-cropper.php">Mapa de procesos</a> </li>
-
-          </ul>
-
-        </li>
-
-        <li> <a href="buscarDocumentos" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">BUSCAR DOCUMENTOS<span class="fa arrow"></span></span></a>          
-        </li>  
-
-        <li> <a href="#" class="waves-effect"><i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">SOLICITUDES SGC <span class="fa arrow"></span></span></a>
-                            <ul class="nav nav-second-level">
-                                <li> <a href="https://forms.office.com/r/Dy28fet3Xv" target="_blank">Solicitud de cambio al SGC - FUP</a> </li>
-                                <li> <a href="https://forms.office.com/r/QRb71zfT90" target="_blank">Reporte No-Conformidad</a> </li>
-                                <li> <a href="https://forms.office.com/r/Bev2TbAwkj" target="_blank">Reporte salida No-Conforme</a> </li>
-                            </ul>
-                        </li>      
-      </ul>
-    </div>
-  </div>
-  <!-- Left navbar-header end -->
+<?php include 'header.php'; ?>
+<!-- Left navbar-header end -->
   <!-- Page Content -->
   <div id="page-wrapper">
     <div class="container-fluid">
@@ -389,7 +274,7 @@ include 'scripts/utiles.php';
       <!-- /.right-sidebar -->
     </div>
     <!-- /.container-fluid -->
-    <footer class="footer text-center"> 2018 &copy; UNIVIDA </footer>
+    <?php include 'footer.php'; ?>
   </div>
   <!-- /#page-wrapper -->
 </div>
