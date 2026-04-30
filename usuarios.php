@@ -82,6 +82,130 @@ include 'scripts/config.php';
 
   <link href="plugins/bower_components/toast-master/css/jquery.toast.css" rel="stylesheet">
 
+  <style>
+    .user-modal .modal-dialog {
+      width: 680px;
+      max-width: 92%;
+    }
+
+    .user-modal .modal-content {
+      border: 0;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 20px 45px rgba(17, 38, 63, 0.18);
+    }
+
+    .user-modal .modal-header {
+      background: linear-gradient(135deg, #0b5ea8 0%, #1495d1 100%);
+      color: #fff;
+      padding: 22px 26px;
+      border-bottom: 0;
+    }
+
+    .user-modal .modal-header .close {
+      color: #fff;
+      opacity: 1;
+      text-shadow: none;
+    }
+
+    .user-modal .modal-title {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .user-modal .modal-subtitle {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 13px;
+    }
+
+    .user-modal .modal-body {
+      padding: 24px 26px 10px;
+      background: #f7fbff;
+    }
+
+    .user-modal .modal-footer {
+      border-top: 0;
+      padding: 14px 26px 24px;
+      background: #f7fbff;
+    }
+
+    .user-section {
+      background: #fff;
+      border: 1px solid #e2edf6;
+      border-radius: 14px;
+      padding: 18px 18px 8px;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 18px rgba(18, 59, 98, 0.06);
+    }
+
+    .user-section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0b5ea8;
+      margin: 0 0 4px;
+    }
+
+    .user-section-text {
+      color: #748494;
+      font-size: 12px;
+      margin-bottom: 14px;
+    }
+
+    .user-modal .form-group label {
+      font-weight: 600;
+      color: #2f4459;
+    }
+
+    .user-modal .form-control {
+      border-radius: 10px;
+      border-color: #d9e6f2;
+      min-height: 44px;
+      box-shadow: none;
+    }
+
+    .user-help {
+      color: #7d8b99;
+      font-size: 12px;
+      margin-top: 6px;
+      display: block;
+    }
+
+    .user-switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border: 1px solid #e3ecf5;
+      border-radius: 12px;
+      margin-bottom: 14px;
+      background: #fbfdff;
+    }
+
+    .user-switch-copy {
+      padding-right: 18px;
+    }
+
+    .user-switch-title {
+      margin: 0 0 4px;
+      font-weight: 700;
+      color: #30475d;
+    }
+
+    .user-switch-text {
+      margin: 0;
+      color: #7f8d9b;
+      font-size: 12px;
+    }
+
+    .user-modal .btn {
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-weight: 600;
+    }
+  </style>
+
 
 
   <script src="https://www.w3schools.com/lib/w3data.js"></script>
@@ -317,51 +441,76 @@ include 'scripts/config.php';
 
             <!-- /.modal -->
 
-            <div id="responsive-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+            <div id="responsive-modal" class="modal fade user-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
 
               <div class="modal-dialog">
 
                 <div class="modal-content">
 
                   <div class="modal-header">
-
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-
-                  <h4 class="modal-title">Usuario</h4>
+                    <h4 class="modal-title">Gestión de Usuario</h4>
+                    <p class="modal-subtitle">Edite la asignación del empleado, el acceso a la cuenta y sus permisos principales.</p>
                   </div>
                   <form action="frmDatos" method="POST">
                     <div class="modal-body">
                       <input type="hidden" id="accion" name="accion" value="3">
-                      <div class="form-group">
-                        <label for="message-text" id=mensaje_empleado name=mensaje_empleado class="control-label">Empleado:</label>
-                        <div class="combo">
-                          <select class="form-control selectpicker" id="empleado" name="empleado" data-live-search="true" data-size="10" data-width="100%" title="Seleccione un empleado">
-                          </select>
+                      <div class="user-section">
+                        <h5 class="user-section-title">Empleado asociado</h5>
+                        <p class="user-section-text">Seleccione el colaborador que quedará vinculado a esta cuenta dentro de la plataforma.</p>
+                        <div class="form-group">
+                          <label for="message-text" id=mensaje_empleado name=mensaje_empleado class="control-label">Empleado</label>
+                          <div class="combo">
+                            <select class="form-control selectpicker" id="empleado" name="empleado" data-live-search="true" data-size="10" data-width="100%" title="Seleccione un empleado">
+                            </select>
+                          </div>
+                          <span class="user-help">Puede escribir en el buscador para encontrar rápidamente un empleado.</span>
                         </div>
                       </div>
-                      <div class="form-group">
-                        <label for="message-text" id=mensaje_contrasena name=mensaje_contrasena class="control-label">Contraseña: </label>
-                        <input type="password" class="form-control" placeholder=" &#128272; Digite aquí su contraseña" id="contrasena" name="contrasena" required="true">
+
+                      <div class="user-section">
+                        <h5 class="user-section-title">Acceso</h5>
+                        <p class="user-section-text">Defina la contraseña inicial o actualice la credencial de acceso cuando sea necesario.</p>
+                        <div class="form-group">
+                          <label for="message-text" id=mensaje_contrasena name=mensaje_contrasena class="control-label">Contraseña inicial</label>
+                          <input type="password" class="form-control" placeholder="Digite aquí la contraseña de acceso" id="contrasena" name="contrasena" required="true">
+                          <span class="user-help">Use esta opción al crear un usuario nuevo.</span>
+                        </div>
+                        <div class="form-group">
+                          <label for="message-text" id=mensaje_cambio_contrasena name=mensaje_cambio_contrasena class="control-label">Cambio de contraseña</label>
+                          <input type="password" class="form-control" placeholder="Digite aquí la nueva contraseña" id="edit_password" name="edit_password">
+                          <span class="user-help">Visible solo cuando la acción corresponda a cambio de contraseña.</span>
+                        </div>
                       </div>
-                      <div class="form-group">
-                        <label for="message-text" id=mensaje_cambio_contrasena name=mensaje_cambio_contrasena class="control-label">Cambio de contraseña:</label>
-                        <input type="password" class="form-control" placeholder=" &#128272; Digite aquí su nueva contraseña" id="edit_password" name="edit_password">
-                      </div>
-                      <div class="form-group bt-switch" id="activo" name="activo">
-                        <label for="message-text" class="control-label">Activo: </label>
-                        <input type="checkbox" data-on-color="success" data-off-color="warning" data-on-text="Si" data-off-text="No" id="estado" name="estado" onchange="cambiar_estado();">
-                        <input type="hidden" id="valor" name="valor">
-                      </div>
-                      <!-- Campo Administrador-->
-                      <div class="form-group bt-switch" id="administrador" name="administrador">
-                        <label for="message-text" class="control-label">Administrador: </label>
-                        <input type="checkbox" data-on-color="success" data-off-color="warning" data-on-text="Si" data-off-text="No" id="estado_Admin" name="estado_Admin" onchange="cambiar_estado_Admin();">
-                        <input type="hidden" id="valorAdmin" name="valorAdmin">
+
+                      <div class="user-section">
+                        <h5 class="user-section-title">Permisos y estado</h5>
+                        <p class="user-section-text">Active o restrinja el acceso del usuario y defina si tendrá permisos administrativos.</p>
+                        <div class="form-group bt-switch user-switch-row" id="activo" name="activo">
+                          <div class="user-switch-copy">
+                            <p class="user-switch-title">Usuario activo</p>
+                            <p class="user-switch-text">Permite que el usuario pueda iniciar sesión y usar el sistema.</p>
+                          </div>
+                          <div>
+                            <input type="checkbox" data-on-color="success" data-off-color="warning" data-on-text="Si" data-off-text="No" id="estado" name="estado" onchange="cambiar_estado();">
+                            <input type="hidden" id="valor" name="valor">
+                          </div>
+                        </div>
+                        <div class="form-group bt-switch user-switch-row" id="administrador" name="administrador">
+                          <div class="user-switch-copy">
+                            <p class="user-switch-title">Permisos de administrador</p>
+                            <p class="user-switch-text">Habilita acceso a configuraciones y módulos de administración.</p>
+                          </div>
+                          <div>
+                            <input type="checkbox" data-on-color="success" data-off-color="warning" data-on-text="Si" data-off-text="No" id="estado_Admin" name="estado_Admin" onchange="cambiar_estado_Admin();">
+                            <input type="hidden" id="valorAdmin" name="valorAdmin">
+                          </div>
+                        </div>
                       </div>
                     </div>
                     <div class="modal-footer">
                       <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cerrar</button>
-                      <button type="submit" id="guardar-registro" class="btn btn-danger waves-effect waves-light">Guardar</button>
+                      <button type="submit" id="guardar-registro" class="btn btn-info waves-effect waves-light">Guardar cambios</button>
                     </div>
                   </form>
                 </div>

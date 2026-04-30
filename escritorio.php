@@ -88,6 +88,251 @@
 
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
+<style>
+  .dashboard-shell {
+    background: linear-gradient(180deg, #f4f8fd 0%, #eef5fb 100%);
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: 0 18px 45px rgba(12, 58, 104, 0.08);
+    margin-bottom: 30px;
+  }
+
+  .dashboard-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px;
+    padding: 34px 34px 28px;
+    background: linear-gradient(135deg, #0b4f8a 0%, #0f6db2 55%, #46a7dd 100%);
+    color: #fff;
+    margin-bottom: 26px;
+  }
+
+  .dashboard-hero:before,
+  .dashboard-hero:after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .dashboard-hero:before {
+    width: 280px;
+    height: 20px;
+    right: -90px;
+    top: -140px;
+  }
+
+  .dashboard-hero:after {
+    width: 180px;
+    height: 180px;
+    right: 120px;
+    bottom: -110px;
+  }
+
+  .hero-content,
+  .hero-actions {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-kicker {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .hero-actions {
+    margin-top: 24px;
+  }
+
+  .hero-link {
+    display: inline-block;
+    margin-right: 12px;
+    margin-bottom: 10px;
+    padding: 11px 18px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-weight: 600;
+    transition: 0.2s ease;
+  }
+
+  .hero-link:hover,
+  .hero-link:focus {
+    color: #fff;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.24);
+  }
+
+  .metric-card {
+    position: relative;
+    background: #fff;
+    border-radius: 22px;
+    padding: 24px 22px;
+    min-height: 210px;
+    box-shadow: 0 14px 34px rgba(14, 55, 94, 0.08);
+    border: 1px solid #e4edf6;
+    margin-bottom: 24px;
+  }
+
+  .metric-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 18px;
+  }
+
+  .metric-icon.total {
+    color: #0b5ea8;
+    background: rgba(11, 94, 168, 0.12);
+  }
+
+  .metric-icon.open {
+    color: #d89000;
+    background: rgba(216, 144, 0, 0.14);
+  }
+
+  .metric-icon.closed {
+    color: #1b8f5a;
+    background: rgba(27, 143, 90, 0.14);
+  }
+
+  .metric-label {
+    color: #7590a8;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+
+  .metric-value {
+    font-size: 36px;
+    line-height: 1;
+    font-weight: 700;
+    color: #17324d;
+    margin-bottom: 10px;
+  }
+
+  .metric-text {
+    color: #7b8b99;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 44px;
+  }
+
+  .metric-footer {
+    margin-top: 18px;
+  }
+
+  .metric-footer a {
+    font-weight: 700;
+    color: #0b5ea8;
+  }
+
+  .metric-footer a:hover {
+    text-decoration: none;
+    color: #0a4b85;
+  }
+
+  .metric-progress {
+    height: 8px;
+    border-radius: 999px;
+    background: #edf3f9;
+    overflow: hidden;
+    margin-top: 16px;
+  }
+
+  .metric-progress span {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+  }
+
+  .section-card {
+    background: #fff;
+    border-radius: 22px;
+    border: 1px solid #e2ecf5;
+    box-shadow: 0 14px 32px rgba(13, 55, 94, 0.08);
+    margin-bottom: 26px;
+    overflow: hidden;
+  }
+
+  .section-header {
+    padding: 22px 26px 10px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbfe 100%);
+  }
+
+  .section-kicker {
+    color: #87a0b6;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    color: #16314b;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 6px;
+  }
+
+  .section-text {
+    color: #73879a;
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .section-body {
+    padding: 8px 24px 26px;
+  }
+
+  .table-shell {
+    background: #f9fcff;
+    border: 1px solid #e4edf6;
+    border-radius: 16px;
+    padding: 18px;
+  }
+
+  .table-shell .dataTables_wrapper {
+    margin-bottom: 0;
+  }
+
+  .welcome-mini {
+    margin-top: 18px;
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.12);
+    max-width: 360px;
+  }
+
+  .welcome-mini strong {
+    display: block;
+    font-size: 13px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .welcome-mini span {
+    opacity: 0.92;
+    line-height: 1.6;
+    font-size: 13px;
+  }
+</style>
+
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -296,241 +541,104 @@
 
       </div>
 
-      <!-- /.row -->
-      <?php if($_SESSION['administrador']==1){ ?>
-
-      <div class="row">
-
-        <div class="col-md-12 col-lg-12 col-sm-12">
-
-          <div class="white-box">
-
-            <div class="row row-in">
-
-              <div class="col-lg-4 col-sm-6 row-in-br  b-r-none" >
-
-                <div class="col-in row">
-
-                  <div class="col-md-6 col-sm-6 col-xs-6"> <i class="linea-icon linea-basic" data-icon="'"></i>
-
-                    <h5 class="text-muted vb">Número de PQRS</h5>
-
-                  </div>
-
-                  <div class="col-md-6 col-sm-6 col-xs-6">
-                    
-                    <a href="pqrs.php?accion=9"><h3 class="counter text-right m-t-15 text-megna"><?php echo $pqr['total']; ?></h3></a> 
-
-                  </div>
-
-                  <div class="col-md-12 col-sm-12 col-xs-12">
-
-                    <div class="progress">
-
-                      <div class="progress-bar progress-bar-megna" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 100%"> <span class="sr-only">40% Complete (success)</span> </div>
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-              <div class="col-lg-4 col-sm-6 row-in-br">
-                <div class="col-in row">
-                  <div class="col-md-6 col-sm-6 col-xs-6"> <i data-icon=")" class="linea-icon linea-basic" ></i>
-
-                    <h5 class="text-muted vb">PQRS Abiertos</h5>
-
-                  </div>
-
-                  <div class="col-md-6 col-sm-6 col-xs-6">
-
-                    <a href="pqrs.php?accion=11"><h3 class="counter text-right m-t-15 text-warning"><?php echo $pqr['abiertos']; ?></h3></a>
-
-                  </div>
-
-                  <div class="col-md-12 col-sm-12 col-xs-12">
-
-                    <div class="progress">
-
-                      <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: <?php echo $por_abiertos; ?>%"> <span class="sr-only">40% Complete (success)</span> </div>
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-                            
-
-              <div class="col-lg-4 col-sm-6  b-0">
-
-                <div class="col-in row">
-
-                  <div class="col-md-6 col-sm-6 col-xs-6"> <i class="linea-icon linea-basic" data-icon="&"></i>
-
-                    <h5 class="text-muted vb">PQRS Cerrados</h5>
-
-                  </div>
-
-                  <div class="col-md-6 col-sm-6 col-xs-6">
-
-                    <a href="pqrs.php?accion=10"><h3 class="counter text-right m-t-15 text-success"><?php echo $pqr['cerrados']; ?></h3></a>
-
-                  </div>
-
-                  <div class="col-md-12 col-sm-12 col-xs-12">
-
-                    <div class="progress">
-
-                      <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: <?php echo $por_cerrados; ?>%"> <span class="sr-only">40% Complete (success)</span> </div>
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-              </div>
-
+      <div class="dashboard-shell">
+        <div class="dashboard-hero">
+          <div class="hero-content">
+            <span class="hero-kicker">Sistema de Gestión de Calidad</span>
+            <div class="welcome-mini">
+              <strong>Bienvenido</strong>
+              <span><?php echo $_SESSION['nombre']; ?>, aquí puede consultar solicitudes, revisar documentos destacados y monitorear el estado general de las PQRS.</span>
             </div>
-
           </div>
-
+          <div class="hero-actions">
+            <a href="buscarDocumentos" class="hero-link">Buscar documentos</a>
+            <a href="mapadeprocesos" class="hero-link">Mapa de procesos</a>
+            <a href="configuracionCuenta" class="hero-link">Configuración de perfil</a>
+          </div>
         </div>
 
-      </div>
-      <?php } ?>
-
-      <!--row -->
-
-      <div class="row">
-
-        <div class="col-lg-12 col-sm-4">
-
-          <div class="panel panel-info">
-
-            <div class="panel-heading"> PQRS Asignadas
-
-              <div class="pull-right"><a href="#" data-perform="panel-collapse"><i class="ti-minus"></i></a> <a href="#" data-perform="panel-dismiss"></a> </div>
-
+        <?php if($_SESSION['administrador']==1){ ?>
+        <div class="row">
+          <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="metric-card">
+              <div class="metric-icon total"><i class="linea-icon linea-basic" data-icon="'"></i></div>
+              <div class="metric-label">Total PQRS</div>
+              <div class="metric-value"><?php echo $pqr['total']; ?></div>
+              <div class="metric-text">Solicitudes registradas dentro del sistema para control y seguimiento institucional.</div>
+              <div class="metric-progress"><span style="width:100%; background:linear-gradient(90deg, #0b5ea8 0%, #42a8df 100%);"></span></div>
+              <div class="metric-footer"><a href="pqrs.php?accion=9">Ver consolidado completo</a></div>
             </div>
+          </div>
 
-            <div class="panel-wrapper collapse in" aria-expanded="true">
+          <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="metric-card">
+              <div class="metric-icon open"><i class="linea-icon linea-basic" data-icon=")"></i></div>
+              <div class="metric-label">PQRS Abiertos</div>
+              <div class="metric-value"><?php echo $pqr['abiertos']; ?></div>
+              <div class="metric-text">Casos activos que requieren respuesta, gestión o cierre dentro de los tiempos definidos.</div>
+              <div class="metric-progress"><span style="width:<?php echo $por_abiertos; ?>%; background:linear-gradient(90deg, #f0b432 0%, #d98a00 100%);"></span></div>
+              <div class="metric-footer"><a href="pqrs.php?accion=11">Revisar solicitudes abiertas</a></div>
+            </div>
+          </div>
 
-              <div class="panel-body">
+          <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="metric-card">
+              <div class="metric-icon closed"><i class="linea-icon linea-basic" data-icon="&"></i></div>
+              <div class="metric-label">PQRS Cerrados</div>
+              <div class="metric-value"><?php echo $pqr['cerrados']; ?></div>
+              <div class="metric-text">Solicitudes finalizadas que ya cuentan con gestión concluida dentro del histórico institucional.</div>
+              <div class="metric-progress"><span style="width:<?php echo $por_cerrados; ?>%; background:linear-gradient(90deg, #1da26d 0%, #47c68b 100%);"></span></div>
+              <div class="metric-footer"><a href="pqrs.php?accion=10">Consultar casos cerrados</a></div>
+            </div>
+          </div>
+        </div>
+        <?php } ?>
 
-                <!-- /row -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-kicker">Seguimiento operativo</div>
+            <h2 class="section-title">PQRS Asignadas</h2>
+            <p class="section-text">Visualice las solicitudes pendientes de respuesta con sus fechas clave y gestione cada caso desde una tabla más limpia y legible.</p>
+          </div>
+          <div class="section-body">
+            <div class="table-shell table-responsive">
+              <table id='datatable' class='display nowrap' cellspacing='0' width='100%'>
+                <thead>
+                  <tr>
+                    <th>Código</th>
+                    <th>Nombre solicitante</th>
+                    <th>Correo electrónico</th>
+                    <th>Fecha reporte</th>
+                    <th>Fecha de vencimiento</th>
+                    <th>Responder</th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+          </div>
+        </div>
 
-                
-
-                  
-
-                  <div class="col-sm-12">
-
-                    <div class="white-box">
-
-                      <div class="table-responsive">
-
-
-                      <table id='datatable' class='display nowrap' cellspacing='0' width='100%'>
-
-                        <thead>
-
-                          <tr>
-
-                            <th>Código</th>
-
-                            <th>Nombre solicitante</th>
-
-                            <th>Correo electrónico</th>
-
-                            <th>Fecha reporte</th>
-
-                            <th>Fecha de vencimiento</th>
-
-                            <th>Responder</th>
-
-                          </tr>
-
-                        </thead>
-
-                      </table>
-
-                       </div>
-
-                    </div>
-
-                  </div>
-
-                
-
-
-                  <div class="row">
-
-                     <div class="col-lg-12 col-sm-4">
-
-                       <div class="panel panel-info">
-
-                         <div class="panel-heading"> Documentos Destacados
-
-                           <div class="pull-right"><a href="#" data-perform="panel-collapse"><i class="ti-minus"></i></a> <a href="#" data-perform="panel-dismiss"></a> </div>
-
-                         </div>
-
-                         <div class="panel-wrapper collapse in" aria-expanded="true">
-
-                           <div class="panel-body">
-
-                             <!-- /row -->
-
-                             <div class="col-sm-12">
-
-                               <div class="white-box">
-
-                                 <div class="table-responsive">
-
-
-                                   <table id='datatableDescargas' class='display nowrap' cellspacing='0' width='100%'>
-
-                                     <thead>
-
-                                       <tr>
-
-                                         <th>Documento</th>
-
-                                         <th>Visualizaciones</th>
-
-                                         <th>Descargar</th>
-
-                                       </tr>
-
-                                     </thead>
-
-                                   </table>
-
-                                 </div>
-
-                               </div>
-
-                             </div>
-
-                           </div>
-
-                         </div>
-
-                       </div>
-                     </div>
-
-                   </div>
-
-
-
-
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-kicker">Consulta documental</div>
+            <h2 class="section-title">Documentos Destacados</h2>
+            <p class="section-text">Identifique los documentos con mayor nivel de consulta y facilite el acceso a la información más relevante del sistema.</p>
+          </div>
+          <div class="section-body">
+            <div class="table-shell table-responsive">
+              <table id='datatableDescargas' class='display nowrap' cellspacing='0' width='100%'>
+                <thead>
+                  <tr>
+                    <th>Documento</th>
+                    <th>Visualizaciones</th>
+                    <th>Descargar</th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
 
                 <!-- /.row -->
 
