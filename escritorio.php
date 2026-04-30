@@ -13,7 +13,81 @@
 
   } 
 
-  include 'scripts/utiles.php'; 
+  include 'scripts/utiles.php';
+  include 'scripts/dashboard_banner.php';
+
+  $bannerMessage = '';
+  $bannerError = '';
+
+  if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['dashboard_banner_form']) && isset($_SESSION['administrador']) && $_SESSION['administrador'] == 1) {
+    $bannerData = dashboard_banner_load();
+    $bannerData['enabled'] = isset($_POST['enabled']) ? '1' : '0';
+    $bannerData['type'] = (isset($_POST['type']) && $_POST['type'] == 'image') ? 'image' : 'text';
+    $bannerData['title'] = isset($_POST['title']) ? trim($_POST['title']) : '';
+    $bannerData['body'] = isset($_POST['body']) ? trim($_POST['body']) : '';
+    $bannerData['cta_text'] = isset($_POST['cta_text']) ? trim($_POST['cta_text']) : '';
+    $bannerData['cta_url'] = isset($_POST['cta_url']) ? trim($_POST['cta_url']) : '';
+    $bannerData['start_date'] = isset($_POST['start_date']) ? trim($_POST['start_date']) : '';
+    $bannerData['end_date'] = isset($_POST['end_date']) ? trim($_POST['end_date']) : '';
+
+    if ($bannerData['cta_url'] != '' && !preg_match('/^(https?:\/\/[^\s]+|\/[^\s]*|[a-zA-Z0-9_\-\.\/?=&%#]+)$/', $bannerData['cta_url'])) {
+      $bannerError = 'La URL del enlace no es válida.';
+    }
+
+    if ($bannerError == '' && isset($_POST['remove_image']) && $_POST['remove_image'] == '1' && trim($bannerData['image']) != '') {
+      $oldImage = dashboard_banner_dir() . '/' . basename($bannerData['image']);
+      if (is_file($oldImage)) {
+        unlink($oldImage);
+      }
+      $bannerData['image'] = '';
+    }
+
+    if ($bannerError == '' && isset($_FILES['image_file']) && $_FILES['image_file']['error'] == UPLOAD_ERR_OK) {
+      $allowed = array('jpg', 'jpeg', 'png', 'gif', 'webp');
+      $originalName = $_FILES['image_file']['name'];
+      $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+
+      if (!in_array($extension, $allowed)) {
+        $bannerError = 'La imagen debe ser JPG, PNG, GIF o WEBP.';
+      } elseif ($_FILES['image_file']['size'] > 5242880) {
+        $bannerError = 'La imagen no puede superar 5 MB.';
+      } elseif (getimagesize($_FILES['image_file']['tmp_name']) === false) {
+        $bannerError = 'El archivo cargado no es una imagen válida.';
+      } else {
+        $dir = dashboard_banner_dir();
+        if (!is_dir($dir)) {
+          mkdir($dir, 0755, true);
+        }
+
+        $newName = 'banner_' . date('YmdHis') . '_' . mt_rand(1000, 9999) . '.' . $extension;
+        $target = $dir . '/' . $newName;
+
+        if (move_uploaded_file($_FILES['image_file']['tmp_name'], $target)) {
+          if (trim($bannerData['image']) != '') {
+            $oldImage = $dir . '/' . basename($bannerData['image']);
+            if (is_file($oldImage)) {
+              unlink($oldImage);
+            }
+          }
+          $bannerData['image'] = $newName;
+          $bannerData['type'] = 'image';
+        } else {
+          $bannerError = 'No fue posible guardar la imagen del banner.';
+        }
+      }
+    }
+
+    if ($bannerError == '') {
+      if (dashboard_banner_save($bannerData)) {
+        $bannerMessage = 'Banner actualizado correctamente.';
+      } else {
+        $bannerError = 'No fue posible guardar la configuración del banner.';
+      }
+    }
+  }
+
+  $dashboardBanner = dashboard_banner_load();
+  $showDashboardBanner = dashboard_banner_is_active($dashboardBanner);
 
   $pqr = get_cantidad_pqr();
   if ($pqr['total'] <> 0) {
@@ -101,7 +175,7 @@
     position: relative;
     overflow: hidden;
     border-radius: 24px;
-    padding: 34px 34px 28px;
+    padding: 34px;
     background: linear-gradient(135deg, #0b4f8a 0%, #0f6db2 55%, #46a7dd 100%);
     color: #fff;
     margin-bottom: 26px;
@@ -135,15 +209,132 @@
     z-index: 1;
   }
 
-  .hero-kicker {
+  .hero-grid {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: stretch;
+    gap: 24px;
+  }
+
+  .hero-main {
+    flex: 1 1 45%;
+    min-width: 260px;
+  }
+
+  .hero-banner {
+    width: 100%;
+    min-height: 240px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.13);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-banner-image {
+    width: 100%;
+    height: 100%;
+    min-height: 240px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .hero-banner-copy {
+    height: 100%;
+    min-height: 240px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .hero-banner-label {
     display: inline-block;
-    padding: 8px 14px;
+    align-self: flex-start;
+    padding: 7px 12px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.14);
-    font-size: 12px;
+    background: rgba(255, 255, 255, 0.16);
+    font-size: 11px;
     letter-spacing: 1px;
     text-transform: uppercase;
     margin-bottom: 14px;
+  }
+
+  .hero-banner-title {
+    color: #fff;
+    font-size: 28px;
+    line-height: 1.18;
+    font-weight: 700;
+    margin: 0 0 12px;
+  }
+
+  .hero-banner-text {
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 15px;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .hero-banner-link {
+    align-self: flex-start;
+    margin-top: 18px;
+    color: #fff;
+    font-weight: 700;
+    text-decoration: underline;
+  }
+
+  .hero-banner-link:hover,
+  .hero-banner-link:focus {
+    color: #fff;
+  }
+
+  .hero-banner-admin {
+    margin-top: 18px;
+  }
+
+  .banner-modal-preview {
+    background: linear-gradient(135deg, #0b4f8a 0%, #0f6db2 55%, #46a7dd 100%);
+    border-radius: 8px;
+    color: #fff;
+    min-height: 170px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .banner-modal-preview img {
+    width: 100%;
+    height: 210px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .banner-modal-copy {
+    padding: 22px;
+  }
+
+  .banner-modal-label {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .banner-modal-title {
+    color: #fff;
+    font-size: 22px;
+    margin: 0 0 8px;
+  }
+
+  .banner-modal-text {
+    color: rgba(255, 255, 255, 0.92);
+    line-height: 1.6;
+    margin: 0;
   }
 
   .hero-actions {
@@ -331,6 +522,16 @@
     line-height: 1.6;
     font-size: 13px;
   }
+
+  @media (max-width: 991px) {
+    .hero-grid {
+      display: block;
+    }
+
+    .hero-banner {
+      margin-top: 24px;
+    }
+  }
 </style>
 
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -504,6 +705,7 @@
           <ul class="nav nav-second-level">
 
             <li> <a href="form-img-cropper.php">Mapa de procesos</a> </li>
+            <li> <a href="#" data-toggle="modal" data-target="#dashboard-banner-modal">Banner de escritorio</a> </li>
 
           </ul>
 
@@ -542,20 +744,36 @@
       </div>
 
       <div class="dashboard-shell">
-        <div class="dashboard-hero">
-          <div class="hero-content">
-            <span class="hero-kicker">Sistema de Gestión de Calidad</span>
-            <div class="welcome-mini">
-              <strong>Bienvenido</strong>
-              <span><?php echo $_SESSION['nombre']; ?>, aquí puede consultar solicitudes, revisar documentos destacados y monitorear el estado general de las PQRS.</span>
+        <?php if($showDashboardBanner){ ?>
+          <div class="dashboard-hero">
+            <div class="hero-banner">
+              <?php if($dashboardBanner['type'] == 'image' && trim($dashboardBanner['image']) != ''){ ?>
+                <img class="hero-banner-image" src="<?php echo dashboard_banner_escape(dashboard_banner_public_path($dashboardBanner['image'])); ?>?v=<?php echo urlencode($dashboardBanner['updated_at']); ?>" alt="Banner informativo">
+              <?php } else { ?>
+                <div class="hero-banner-copy">
+                  <span class="hero-banner-label">Información</span>
+                  <?php if(trim($dashboardBanner['title']) != ''){ ?>
+                    <h2 class="hero-banner-title"><?php echo dashboard_banner_escape($dashboardBanner['title']); ?></h2>
+                  <?php } ?>
+                  <?php if(trim($dashboardBanner['body']) != ''){ ?>
+                    <p class="hero-banner-text"><?php echo nl2br(dashboard_banner_escape($dashboardBanner['body'])); ?></p>
+                  <?php } ?>
+                  <?php if(trim($dashboardBanner['cta_text']) != '' && trim($dashboardBanner['cta_url']) != ''){ ?>
+                    <a class="hero-banner-link" href="<?php echo dashboard_banner_escape($dashboardBanner['cta_url']); ?>" target="_blank"><?php echo dashboard_banner_escape($dashboardBanner['cta_text']); ?></a>
+                  <?php } ?>
+                </div>
+              <?php } ?>
             </div>
           </div>
-          <div class="hero-actions">
-            <a href="buscarDocumentos" class="hero-link">Buscar documentos</a>
-            <a href="mapadeprocesos" class="hero-link">Mapa de procesos</a>
-            <a href="configuracionCuenta" class="hero-link">Configuración de perfil</a>
-          </div>
-        </div>
+        <?php } ?>
+
+        <?php if($bannerMessage != ''){ ?>
+          <div class="alert alert-success banner-status-message"><?php echo dashboard_banner_escape($bannerMessage); ?></div>
+        <?php } ?>
+
+        <?php if($bannerError != ''){ ?>
+          <div class="alert alert-danger banner-status-message"><?php echo dashboard_banner_escape($bannerError); ?></div>
+        <?php } ?>
 
         <?php if($_SESSION['administrador']==1){ ?>
         <div class="row">
@@ -640,15 +858,117 @@
         </div>
       </div>
 
-                <!-- /.row -->
+	                <!-- /.row -->
 
-                <!-- /row -->
+	                <!-- /row -->
 
-                <div class="row">
+	                <div class="row">
 
-                  <!-- /.modal -->
+                    <?php if($_SESSION['administrador']==1){ ?>
+                    <div id="dashboard-banner-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dashboardBannerLabel" aria-hidden="true" style="display: none;">
+                      <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                          <form method="post" enctype="multipart/form-data">
+                            <div class="modal-header">
+                              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                              <h4 class="modal-title" id="dashboardBannerLabel">Banner de escritorio</h4>
+                            </div>
+                            <div class="modal-body">
+                              <input type="hidden" name="dashboard_banner_form" value="1">
 
-                  <div id="responsive-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                              <div class="banner-modal-preview">
+                                <?php if ($dashboardBanner['type'] == 'image' && trim($dashboardBanner['image']) != '') { ?>
+                                  <img src="<?php echo dashboard_banner_escape(dashboard_banner_public_path($dashboardBanner['image'])); ?>?v=<?php echo urlencode($dashboardBanner['updated_at']); ?>" alt="Banner de escritorio">
+                                <?php } else { ?>
+                                  <div class="banner-modal-copy">
+                                    <span class="banner-modal-label">Vista previa</span>
+                                    <h3 class="banner-modal-title"><?php echo dashboard_banner_escape($dashboardBanner['title'] != '' ? $dashboardBanner['title'] : 'Titulo del banner'); ?></h3>
+                                    <p class="banner-modal-text"><?php echo dashboard_banner_escape($dashboardBanner['body'] != '' ? $dashboardBanner['body'] : 'Escriba aqui una noticia, informacion institucional o mensaje temporal.'); ?></p>
+                                  </div>
+                                <?php } ?>
+                              </div>
+
+                              <div class="row">
+                                <div class="col-md-4">
+                                  <div class="checkbox checkbox-info">
+                                    <input type="checkbox" id="banner_enabled" name="enabled" value="1" <?php if ($dashboardBanner['enabled'] == '1') echo 'checked'; ?>>
+                                    <label for="banner_enabled">Mostrar banner</label>
+                                  </div>
+                                </div>
+                                <div class="col-md-4">
+                                  <div class="form-group">
+                                    <label for="banner_type">Tipo de banner</label>
+                                    <select class="form-control" id="banner_type" name="type">
+                                      <option value="text" <?php if ($dashboardBanner['type'] == 'text') echo 'selected'; ?>>Texto informativo</option>
+                                      <option value="image" <?php if ($dashboardBanner['type'] == 'image') echo 'selected'; ?>>Imagen</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="col-md-2">
+                                  <div class="form-group">
+                                    <label for="banner_start_date">Fecha inicio</label>
+                                    <input type="date" class="form-control" id="banner_start_date" name="start_date" value="<?php echo dashboard_banner_escape($dashboardBanner['start_date']); ?>">
+                                  </div>
+                                </div>
+                                <div class="col-md-2">
+                                  <div class="form-group">
+                                    <label for="banner_end_date">Fecha fin</label>
+                                    <input type="date" class="form-control" id="banner_end_date" name="end_date" value="<?php echo dashboard_banner_escape($dashboardBanner['end_date']); ?>">
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="banner_title">Titulo</label>
+                                <input type="text" class="form-control" id="banner_title" name="title" maxlength="90" value="<?php echo dashboard_banner_escape($dashboardBanner['title']); ?>">
+                              </div>
+
+                              <div class="form-group">
+                                <label for="banner_body">Mensaje</label>
+                                <textarea class="form-control" id="banner_body" name="body" rows="4" maxlength="500"><?php echo dashboard_banner_escape($dashboardBanner['body']); ?></textarea>
+                              </div>
+
+                              <div class="row">
+                                <div class="col-md-6">
+                                  <div class="form-group">
+                                    <label for="banner_cta_text">Texto del enlace</label>
+                                    <input type="text" class="form-control" id="banner_cta_text" name="cta_text" maxlength="60" value="<?php echo dashboard_banner_escape($dashboardBanner['cta_text']); ?>">
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-group">
+                                    <label for="banner_cta_url">URL del enlace</label>
+                                    <input type="url" class="form-control" id="banner_cta_url" name="cta_url" maxlength="250" value="<?php echo dashboard_banner_escape($dashboardBanner['cta_url']); ?>">
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="banner_image_file">Imagen del banner</label>
+                                <input type="file" class="form-control" id="banner_image_file" name="image_file" accept=".jpg,.jpeg,.png,.gif,.webp">
+                                <span class="help-block">Tamaño máximo: 5 MB. Si carga una imagen, se usará dentro del recuadro azul.</span>
+                              </div>
+
+                              <?php if (trim($dashboardBanner['image']) != '') { ?>
+                                <div class="checkbox checkbox-danger">
+                                  <input type="checkbox" id="banner_remove_image" name="remove_image" value="1">
+                                  <label for="banner_remove_image">Eliminar imagen actual</label>
+                                </div>
+                              <?php } ?>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cancelar</button>
+                              <button type="submit" class="btn btn-info waves-effect waves-light">Guardar banner</button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                    <?php } ?>
+
+	                  <!-- /.modal -->
+
+	                  <div id="responsive-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
 
                     <div class="modal-dialog">
 
@@ -1010,11 +1330,17 @@
 
   
 
-   $(document).ready(function() {
+	   $(document).ready(function() {
+
+      setTimeout(function() {
+        $('.banner-status-message').fadeOut(400, function() {
+          $(this).remove();
+        });
+      }, 2000);
+	
 
 
-
-      $.toast({
+	      $.toast({
 
         heading: 'Hola! <?php echo $_SESSION['nombre']; ?>',
 
