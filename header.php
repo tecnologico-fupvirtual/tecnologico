@@ -144,6 +144,12 @@
         </li>
 
         <li>
+          <a href="actas" class="waves-effect<?php echo menu_active(array('actas', 'acta_imprimir')); ?>">
+            <i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">ACTAS Y COMPROMISOS<span class="fa arrow"></span></span>
+          </a>
+        </li>
+
+        <li>
           <a href="#" class="waves-effect">
             <i class="linea-icon linea-basic fa-fw"></i> <span class="hide-menu">SOLICITUDES SGC<span class="fa arrow"></span></span>
           </a>
